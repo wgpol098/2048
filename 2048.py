@@ -4,6 +4,7 @@ from pygame.locals import *
 from constants import *
 from math import *
 from AI import *
+import datetime
 
 #macierz planszy
 MatrixGame = np.zeros((Size,Size), dtype=int)
@@ -11,10 +12,13 @@ MatrixGame = np.zeros((Size,Size), dtype=int)
 MatrixPreviousGame = np.zeros((Size,Size), dtype=int)
 #licznik punktów
 Score = 0
+#Wynik krok wcześniej
+ScorePrevious = 0
 #Flagi dla AI
 AI1Flag = False
 AI2Flag = False
 AI3Flag = False
+AI5Flag = False
 
 
 #inicjalizacja pygame
@@ -31,6 +35,7 @@ def main():
     global AI1Flag
     global AI2Flag
     global AI3Flag
+    global AI5Flag
     addRandom()
     addRandom()
     Refresh()
@@ -63,6 +68,7 @@ def main():
                             AI1Flag=True
                             AI2Flag=False
                             AI3Flag=False
+                            AI5Flag=False
                     if event.key == pygame.K_2:
                         #zachałanny z patrzeniem w przód
                         if AI2Flag == True:
@@ -71,6 +77,7 @@ def main():
                             AI2Flag=True
                             AI1Flag=False
                             AI3Flag=False
+                            AI5Flag=False
                     if event.key == pygame.K_3:
                         #patrzenie w przód monte carlo
                         if AI3Flag == True:
@@ -79,6 +86,16 @@ def main():
                             AI3Flag=True
                             AI1Flag=False
                             AI2Flag=False
+                            AI5Flag=False
+                    if event.key == pygame.K_5:
+                        #z agentemi i inną oceną
+                        if AI5Flag == True:
+                            AI5Flag=False
+                        else:
+                            AI5Flag=True
+                            AI1Flag=False
+                            AI2Flag=False
+                            AI3Flag=False
                     
                     if direction!=-1:
                         MatrixPreviousGame = np.copy(MatrixGame)
@@ -104,6 +121,8 @@ def main():
                         MoveAI2()
                     if AI3Flag == True:
                         MoveAI3()
+                    if AI5Flag == True:
+                        MoveAI5()
                         
                     #restart gry
                     if event.key == pygame.K_r:
@@ -123,9 +142,14 @@ def main():
 def Undo():
     global MatrixGame
     global MatrixPreviousGame
+    global Score
+    global ScorePrevious
     tmp = np.copy(MatrixGame)
+    tmps = Score
     MatrixGame = np.copy(MatrixPreviousGame)
     MatrixPreviousGame = np.copy(tmp)
+    Score = ScorePrevious
+    ScorePrevious=tmps
     
 #restart gry
 def Restart():
@@ -157,19 +181,26 @@ def MatrixToList(Matrix):
             currentValues.append(Matrix[floor((i+Size*j)/Size)][(i+Size*j)%Size])         
     return currentValues
     
-    
-#funkcja odpowiedzialana za ruch sztucznej inteligencji (zachłanne z patrzeniem w przód z randomem)
-def MoveAI3():   
-    GetMove(BestMoveAI3(MatrixToList(MatrixGame))) 
  
+def MoveAI5():
+    start = datetime.datetime.now()
+    GetMove(BestMoveAI5(MatrixToList(MatrixGame),4))
+    print(datetime.datetime.now() - start)
+#Monte Carlo
+def MoveAI3():  
+    start = datetime.datetime.now() 
+    GetMove(BestMoveAI3(MatrixToList(MatrixGame))) 
+    print(datetime.datetime.now() - start)
 #funkcja odpowiedzialana za ruch sztucznej inteligencji (zachłanne z patrzeniem w przód)
 def MoveAI2():
-    GetMove(BestMoveAI2(MatrixToList(MatrixGame),3,3,Score)) 
- 
-#funkcja odpowiedzialana za ruch sztucznej inteligencji (zachłanne bez patrzenia w przód)
-def MoveAI1():        
+    start = datetime.datetime.now()
+    GetMove(BestMoveAI22(MatrixToList(MatrixGame),3)) 
+    print(datetime.datetime.now() - start)
+#zachłanny algorytm, najlepsze wyjście w danej chwili
+def MoveAI1():     
+    start = datetime.datetime.now()
     GetMove(BestMoveAI(MatrixToList(MatrixGame)))
-        
+    print(datetime.datetime.now() - start)   
 def GetMove(move):
     if move == UP:
         pyautogui.keyDown('up')
@@ -285,11 +316,20 @@ def Refresh():
             elif MatrixGame[i][j] == 256:
                 pygame.draw.rect(WindowSurface,(245,204,97),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
                 label = myfont.render(str(MatrixGame[i][j]),1,(248,244,234))
+            elif MatrixGame[i][j] == 512:
+                pygame.draw.rect(WindowSurface,(245,197,91),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
+                label = myfont.render(str(MatrixGame[i][j]),1,(248,242,229))
+            elif MatrixGame[i][j] == 1024:
+                pygame.draw.rect(WindowSurface,(245,207,121),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
+                label = myfont.render(str(MatrixGame[i][j]),1,(248,242,224))
             elif MatrixGame[i][j] == 2048:
                 pygame.draw.rect(WindowSurface,(245,194,46),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
                 label = myfont.render(str(MatrixGame[i][j]),1,(250,249,250))
+            elif MatrixGame[i][j] == 4096: 
+                pygame.draw.rect(WindowSurface,(253,61,59),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
+                label = myfont.render(str(MatrixGame[i][j]),1,(255,255,255))
             else: 
-                pygame.draw.rect(WindowSurface,(0,0,0),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
+                pygame.draw.rect(WindowSurface,(253,25,30),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
                 label = myfont.render(str(MatrixGame[i][j]),1,(255,255,255))
             
             labelscore = myfont.render("SCORE: "+str(Score),1,(255,255,255))
@@ -298,6 +338,7 @@ def Refresh():
             
 def addRandom():           
     rand = floor(random() * pow(Size,2)) 
+    rand2 = random()
     while MatrixGame[floor(rand/Size)][rand%Size] != 0:
         rand = floor(random() * pow(Size,2))
         
