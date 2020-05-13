@@ -134,7 +134,14 @@ def main():
                     Refresh()
             #przegrana gra        
             else:
-                GameOver()
+                AI1Flag=False
+                AI2Flag=False
+                AI3Flag=False
+                AI5Flag=False
+                if event.type == KEYDOWN:
+                    if event.key == pygame.K_r:
+                        Restart()
+                #GameOver()
                 
         pygame.display.update()            
  
@@ -183,24 +190,17 @@ def MatrixToList(Matrix):
     
  
 def MoveAI5():
-    start = datetime.datetime.now()
     GetMove(BestMoveAI5(MatrixToList(MatrixGame),4))
-    print(datetime.datetime.now() - start)
 #Monte Carlo
 def MoveAI3():  
-    start = datetime.datetime.now() 
-    GetMove(BestMoveAI3(MatrixToList(MatrixGame))) 
-    print(datetime.datetime.now() - start)
+    GetMove(BestMoveAI3(MatrixToList(MatrixGame),10,10)) 
 #funkcja odpowiedzialana za ruch sztucznej inteligencji (zachłanne z patrzeniem w przód)
 def MoveAI2():
-    start = datetime.datetime.now()
     GetMove(BestMoveAI22(MatrixToList(MatrixGame),3)) 
-    print(datetime.datetime.now() - start)
 #zachłanny algorytm, najlepsze wyjście w danej chwili
 def MoveAI1():     
-    start = datetime.datetime.now()
     GetMove(BestMoveAI(MatrixToList(MatrixGame)))
-    print(datetime.datetime.now() - start)   
+    
 def GetMove(move):
     if move == UP:
         pyautogui.keyDown('up')
