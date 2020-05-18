@@ -12,15 +12,15 @@ def ScoreCount(board):
     for i in range(0,Size*Size):
         if tmp == Size:
             tmp=1
-            g=g+(Size-2)
+            g+=(Size-2)
         else:
             g-=1
             tmp+=1
         m[i]=g
-    #m = [6,5,4,3,
-     #    5,4,3,2,
-      #   4,3,2,1,
-       #  3,2,1,0]
+    #[6,5,4,3,
+    #5,4,3,2,
+    #4,3,2,1,
+    #3,2,1,0]
     return (sum(board*m))
 
 #obliczanie liczby punktów dla danej planszy (lista)
@@ -71,8 +71,8 @@ def IsSame(board1, board2):
 #False - jeśli plansza nie ma wolnych miejsc
 #True - jeśli plansza ma wolne miejsca
 def IsEmpty(board):
-    empty = np.where(board == 0)[0]
-    if len(empty) == 0:
+    #empty = np.where(board == 0)[0]
+    if len(np.where(board == 0)[0]) == 0:
         return False
     return True
 
@@ -120,64 +120,6 @@ def BestMoveAI5(board,depth):
     elif sright == smax:
         return RIGHT
         
-#Monte Carlo2
-def BestMoveAI4(board):
-    N=10
-    sup=[]
-    sdown=[]
-    sright=[]
-    sleft=[]
-    b1 = board.copy()
-    for i in range(0,N):
-        rand = floor(random() * 4)
-        rand2 = floor(random() * Size*Size)
-             
-        if rand == 0:
-            b1 = nextMoveAI(b1,UP)
-            sup.append(ScoreCountL(b1))
-        elif rand == 1:
-            b1 = nextMoveAI(b1,LEFT)
-            sleft.append(ScoreCountL(b1))
-        elif rand == 2:
-            b1 = nextMoveAI(b1,DOWN)
-            sdown.append(ScoreCountL(b1))
-        elif rand == 3:
-            b1 = nextMoveAI(b1,RIGHT)
-            sright.append(ScoreCountL(b1))
-            
-        if IsEmpty(b1) == False:
-            break
-        while b1[rand2]!=0:
-            rand2 = floor(random() * Size*Size)
-            
-        b1[rand2]=2
-            
-    up=0
-    down=0
-    left=0
-    right=0
-    if len(sup)!=0:       
-        up = sum(sup)/len(sup) 
-    if len(sdown)!=0:      
-        down = sum(sdown)/len(sdown) 
-    if len(sright)!=0:      
-        right = sum(sright)/len(sright) 
-    if len(sleft)!=0:      
-        left = sum(sleft)/len(sleft) 
-
-    smax = max(up,right,down,left)
-    if up == smax:
-        print("up")
-        return UP
-    elif down == smax:
-        print("down")
-        return DOWN
-    elif left == smax:
-        print("left")
-        return LEFT
-    elif right == smax:
-        print("right")
-        return RIGHT
  
 #Monte Carlo
 def BestMoveAI3(board,N,moves):
@@ -197,28 +139,19 @@ def BestMoveAI3(board,N,moves):
         #UP
         if IsSame(board,b1) == False:
             for i in range(0,moves):
-                rand = floor(random() * 4)
                 rand2 = floor(random() * Size*Size)
-            
+                
                 if IsEmpty(b1) == False:
                     break
                 while b1[rand2]!=0:
                     rand2 = floor(random() * Size*Size)
                 b1[rand2]=2
                 
-                if rand == 0:
-                    b1 = nextMoveAI(b1,UP)
-                elif rand == 1:
-                    b1 = nextMoveAI(b1,LEFT)
-                elif rand == 2:
-                    b1 = nextMoveAI(b1,DOWN)
-                elif rand == 3:
-                    b1 = nextMoveAI(b1,RIGHT)
+                b1 = nextMoveAIrand(b1)
             sup += ScoreCountL(b1)
         #DOWN
         if IsSame(board,b2) == False:
             for i in range(0,moves):
-                rand = floor(random() * 4)
                 rand2 = floor(random() * Size*Size)
             
                 if IsEmpty(b2) == False:
@@ -227,19 +160,11 @@ def BestMoveAI3(board,N,moves):
                     rand2 = floor(random() * Size*Size)
                 b2[rand2]=2
                 
-                if rand == 0:
-                    b2 = nextMoveAI(b2,UP)
-                elif rand == 1:
-                    b2 = nextMoveAI(b2,LEFT)
-                elif rand == 2:
-                    b2 = nextMoveAI(b2,DOWN)
-                elif rand == 3:
-                    b2 = nextMoveAI(b2,RIGHT)
+                b2 = nextMoveAIrand(b2)
             sdown += ScoreCountL(b2)
         #LEFT
         if IsSame(board,b3) == False:
             for i in range(0,moves):
-                rand = floor(random() * 4)
                 rand2 = floor(random() * Size*Size)
             
                 if IsEmpty(b3) == False:
@@ -248,19 +173,11 @@ def BestMoveAI3(board,N,moves):
                     rand2 = floor(random() * Size*Size)
                 b3[rand2]=2
                 
-                if rand == 0:
-                    b3 = nextMoveAI(b3,UP)
-                elif rand == 1:
-                    b3 = nextMoveAI(b3,LEFT)
-                elif rand == 2:
-                    b3 = nextMoveAI(b3,DOWN)
-                elif rand == 3:
-                    b3 = nextMoveAI(b3,RIGHT)
+                b3 = nextMoveAIrand(b3)
             sleft += ScoreCountL(b3)
         #RIGHT
         if IsSame(board,b4) == False:
             for i in range(0,moves):
-                rand = floor(random() * 4)
                 rand2 = floor(random() * Size*Size)
             
                 if IsEmpty(b4) == False:
@@ -269,14 +186,7 @@ def BestMoveAI3(board,N,moves):
                     rand2 = floor(random() * Size*Size)
                 b4[rand2]=2
                 
-                if rand == 0:
-                    b4 = nextMoveAI(b4,UP)
-                elif rand == 1:
-                    b4 = nextMoveAI(b4,LEFT)
-                elif rand == 2:
-                    b4 = nextMoveAI(b4,DOWN)
-                elif rand == 3:
-                    b4 = nextMoveAI(b4,RIGHT)
+                b4 = nextMoveAIrand(b4)
             sright += ScoreCountL(b4)
     
     sup = sup/N
@@ -294,7 +204,19 @@ def BestMoveAI3(board,N,moves):
     elif sright == smax:
         return RIGHT     
         
-        
+#Zwracanie planszy dla randomowego ruchu
+def nextMoveAIrand(board):
+    rand = floor(random() * 4)
+    if rand == 0:
+        board = nextMoveAI(board,UP)
+    elif rand == 1:
+        board = nextMoveAI(board,LEFT)
+    elif rand == 2:
+        board = nextMoveAI(board,DOWN)
+    else:
+        board = nextMoveAI(board,RIGHT)
+    return board
+    
 #Zwracanie planszy dla następnego ruchu
 def nextMoveAI(board, move):
     tmp = np.zeros(Size*Size, dtype=int)
@@ -348,7 +270,6 @@ def BestMoveAI2(board,depth,prevdepth,ddd):
     #jeśli jest to pierwszy poziom rekurencji to zwróc ruch
     #trzeba tu analizować, który ruch będzie najlepszy
     if depth == prevdepth:
-        depth-=1
         sup=0
         sdown=0
         sright=0
@@ -356,19 +277,19 @@ def BestMoveAI2(board,depth,prevdepth,ddd):
         
         b=nextMoveAI(board,UP)      
         if IsSame(board,b) == False:
-            sup = BestMoveAI2(b,depth,prevdepth,ddd)
+            sup = BestMoveAI2(b,depth-1,prevdepth,ddd)
         
         b=nextMoveAI(board,LEFT)       
         if IsSame(board,b) == False:
-            sleft = BestMoveAI2(b,depth,prevdepth,ddd)
+            sleft = BestMoveAI2(b,depth-1,prevdepth,ddd)
         
         b=nextMoveAI(board,DOWN)
         if IsSame(board,b) == False:
-            sdown = BestMoveAI2(b,depth,prevdepth,ddd)
+            sdown = BestMoveAI2(b,depth-1,prevdepth,ddd)
         
         b=nextMoveAI(board,RIGHT)      
         if IsSame(board,b) == False:
-            sright = BestMoveAI2(b,depth,prevdepth,ddd)
+            sright = BestMoveAI2(b,depth-1,prevdepth,ddd)
  
         
         if sup == sdown and sdown == sleft and sleft ==sright:

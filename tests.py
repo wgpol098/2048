@@ -2,7 +2,7 @@ from AI import *
 import datetime
 
 #ilość wykowywanych testów
-N=5
+N=100
 #Plik do testowania działania metod
 
 result = np.zeros(N, dtype=int)
@@ -14,6 +14,7 @@ def addRand(board):
         
     board[rand]=2
     return board
+
 
 print ("-------AI1-------")
 f = open("ai1.txt", "w")
@@ -171,7 +172,7 @@ for i in range(0,N):
     print(str(ScoreCountL(board)) + ";" + str(moves) + ";" + str(max(board)) + ";" + str(end))  
 f.close()
 
-print ("-------AI3_100_100-------")
+print ("-------AI3_50_10-------")
 f = open("ai3_100_100.txt", "w")
 for i in range(0,N):
     board = np.zeros(Size*Size, dtype=int)
@@ -193,7 +194,7 @@ for i in range(0,N):
         
         if c == Size*Size:
             break
-        board = nextMoveAI(board,BestMoveAI3(board,100,100))
+        board = nextMoveAI(board,BestMoveAI3(board,50,10))
         moves+=1
         if IsEmpty(board) == False:
             break
@@ -295,6 +296,7 @@ for i in range(0,N):
     f.write(str(ScoreCountL(board)) + ";" + str(moves) + ";" + str(max(board)) + ";" + str(end) + "\n")
     print(str(ScoreCountL(board)) + ";" + str(moves) + ";" + str(max(board)) + ";" + str(end))  
 f.close()
+
 
 print ("-------AI5_4-------")
 f = open("ai5_4.txt", "w")

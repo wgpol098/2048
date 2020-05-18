@@ -32,6 +32,7 @@ pygame.display.set_caption("2048")
 def main():
     global MatrixPreviousGame
     global Score
+    global ScorePrevious
     global AI1Flag
     global AI2Flag
     global AI3Flag
@@ -99,6 +100,7 @@ def main():
                     
                     if direction!=-1:
                         MatrixPreviousGame = np.copy(MatrixGame)
+                        ScorePrevious = Score
 
                         #rotacja macierzy
                         for i in range(0,direction):
@@ -138,10 +140,8 @@ def main():
                 AI2Flag=False
                 AI3Flag=False
                 AI5Flag=False
-                if event.type == KEYDOWN:
-                    if event.key == pygame.K_r:
-                        Restart()
-                #GameOver()
+                if event.key == pygame.K_r:
+                    Restart()
                 
         pygame.display.update()            
  
@@ -161,11 +161,15 @@ def Undo():
 #restart gry
 def Restart():
     global MatrixGame
+    global MatrixPreviousGame
+    global ScorePrevious
     global Score
     MatrixGame = np.zeros((Size,Size),dtype=int)
     Score=0
+    ScorePrevious=0
     addRandom()
     addRandom()
+    MatrixPreviousGame = MatrixGame.copy()
 
 #obliczanie liczby punktów na danej planszy (macierz)
 def ScoreCountM(board):
@@ -214,13 +218,6 @@ def GetMove(move):
     elif move == RIGHT:
         pyautogui.keyDown('right')
         pyautogui.keyUp('right')       
-  
-#gameover gry
-def GameOver():
-        WindowSurface.fill((0,0,0))
-        myfont = pygame.font.SysFont("monospace",40)
-        labelscore = myfont.render("SCORE: "+str(Score),1,(255,255,255))
-        WindowSurface.blit(labelscore,(10,20))
     
 #scalanie płytek
 def Merge():
@@ -297,34 +294,34 @@ def Refresh():
                 label = myfont.render(str(MatrixGame[i][j]),1,(118,108,97))
             elif MatrixGame[i][j] == 4:
                 pygame.draw.rect(WindowSurface,(245,224,200),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(119,110,101))
+                label = myfont.render(str(MatrixGame[i][j]),1,(118,108,97))
             elif MatrixGame[i][j] == 8:
                 pygame.draw.rect(WindowSurface,(245,117,121),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
                 label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 16:
                 pygame.draw.rect(WindowSurface,(245,149,99),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(243,248,239))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 32:
                 pygame.draw.rect(WindowSurface,(245,124,95),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(253,244,238))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 64:
                 pygame.draw.rect(WindowSurface,(245,95,55),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(250,246,240))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 128:
                 pygame.draw.rect(WindowSurface,(245,207,144),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(250,248,251))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 256:
                 pygame.draw.rect(WindowSurface,(245,204,97),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(248,244,234))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 512:
                 pygame.draw.rect(WindowSurface,(245,197,91),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(248,242,229))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 1024:
                 pygame.draw.rect(WindowSurface,(245,207,121),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(248,242,224))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 2048:
                 pygame.draw.rect(WindowSurface,(245,194,46),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(250,249,250))
+                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
             elif MatrixGame[i][j] == 4096: 
                 pygame.draw.rect(WindowSurface,(253,61,59),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
                 label = myfont.render(str(MatrixGame[i][j]),1,(255,255,255))
@@ -333,7 +330,14 @@ def Refresh():
                 label = myfont.render(str(MatrixGame[i][j]),1,(255,255,255))
             
             labelscore = myfont.render("SCORE: "+str(Score),1,(255,255,255))
-            WindowSurface.blit(label,(i*(Width/Size)+30,j*(Width/Size)+130))
+            
+            if MatrixGame[i][j] > 100 and MatrixGame[i][j] <= 1000:
+                WindowSurface.blit(label,(i*(Width/Size)+15,j*(Width/Size)+130))
+            elif MatrixGame[i][j] > 1000:
+                WindowSurface.blit(label,(i*(Width/Size)+5,j*(Width/Size)+130))
+            else:
+                WindowSurface.blit(label,(i*(Width/Size)+30,j*(Width/Size)+130))
+            
             WindowSurface.blit(labelscore,(10,20))
             
 def addRandom():           
@@ -343,7 +347,6 @@ def addRandom():
         rand = floor(random() * pow(Size,2))
         
     MatrixGame[floor(rand/Size)][rand%Size] = 2
-    
-    
+        
 #odpalenie funkcji main
 main()
