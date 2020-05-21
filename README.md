@@ -10,7 +10,11 @@ This is a 2048 game project, but it uses 4 different artificial intelligence alg
 
 <b>AI1</b>
 
+https://youtu.be/zzPJ8uUV8yI
+
 <b>AI2</b>
+
+https://youtu.be/0RyxUuoBhzQ
 
 <b>AI3 - Monte Carlo</b>
 
