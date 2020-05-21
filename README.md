@@ -18,11 +18,11 @@ https://youtu.be/0RyxUuoBhzQ
 
 <b>AI3 - Monte Carlo</b>
 
-https://www.youtube.com/watch?v=ybMB0yUm7EQ&feature=youtu.be
+https://youtu.be/ybMB0yUm7EQ
 
 <b>AI4 - MinMax</b>
 
-https://www.youtube.com/watch?v=ybMB0yUm7EQ&feature=youtu.be
+https://youtu.be/3GAyl5Hyg9s
 
 <b>Comparsion</b>
 
