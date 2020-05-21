@@ -18,6 +18,7 @@ https://www.youtube.com/watch?v=ybMB0yUm7EQ&feature=youtu.be
 
 <b>AI4 - MinMax</b>
 
+https://www.youtube.com/watch?v=ybMB0yUm7EQ&feature=youtu.be
 
 <b>Comparsion</b>
 
