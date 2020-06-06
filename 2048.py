@@ -8,8 +8,8 @@ import datetime
 
 #macierz planszy
 MatrixGame = np.zeros((Size,Size), dtype=int)
-#Macierz planszy ruch wcześniej
-MatrixPreviousGame = np.zeros((Size,Size), dtype=int)
+ListGame = np.zeros(Size*Size, dtype=int)
+PreviousListGame = []
 #licznik punktów
 Score = 0
 #Wynik krok wcześniej
@@ -30,15 +30,19 @@ pygame.display.set_caption("2048")
 
 
 def main():
-    global MatrixPreviousGame
+    global MatrixGame
+    global PreviousListGame
     global Score
     global ScorePrevious
     global AI1Flag
     global AI2Flag
     global AI3Flag
     global AI5Flag
-    addRandom()
-    addRandom()
+    global ListGame   
+    ListGame = addRand(ListGame)
+    ListGame = addRand(ListGame)
+    PreviousListGame = ListGame.copy()
+    MatrixGame = ListToMatrix(ListGame)
     Refresh()
     
     #obsługa zdarzeń i działanie gry
@@ -51,15 +55,14 @@ def main():
             #sprawdzanie czy można wykonać ruch
             if Check() == True:
                 if event.type == KEYDOWN:
-                    direction = -1
                     if event.key == pygame.K_UP:
-                        direction = 0
+                        Move(UP)
                     if event.key == pygame.K_LEFT:
-                        direction = 1
+                        Move(LEFT)
                     if event.key == pygame.K_DOWN:
-                        direction = 2
+                        Move(DOWN)
                     if event.key == pygame.K_RIGHT:
-                        direction = 3
+                        Move(RIGHT)
                     #sztuczna inteligencja włącz/wyłącz
                     if event.key == pygame.K_1:
                         #zachłany bez patrzenia w przód
@@ -97,25 +100,7 @@ def main():
                             AI1Flag=False
                             AI2Flag=False
                             AI3Flag=False
-                    
-                    if direction!=-1:
-                        MatrixPreviousGame = np.copy(MatrixGame)
-                        ScorePrevious = Score
-
-                        #rotacja macierzy
-                        for i in range(0,direction):
-                            Rotate()
                         
-                        #wykonanie ruchu    
-                        if Check1() == True:
-                            Move()
-                            Merge()
-                            addRandom()
-                            Score = ScoreCountM(MatrixGame)
-                         
-                        #powrót macierzy do dawnego stanu
-                        for i in range(0,(4-direction)%4):
-                            Rotate()  
                     #Wywoływanie ruchu sztucznej inteligencji
                     if AI1Flag == True:
                         MoveAI1()
@@ -140,51 +125,66 @@ def main():
                 AI2Flag=False
                 AI3Flag=False
                 AI5Flag=False
-                if event.key == pygame.K_r:
-                    Restart()
+                if event.type == KEYDOWN:
+                    if event.key == pygame.K_r:
+                        Restart()
                 
         pygame.display.update()            
+
+def Move(move):
+    global MatrixGame
+    global ScorePrevious
+    global Score
+    global ListGame
+    global PreviousListGame
+    if IsSame(ListGame,nextMove(ListGame,move)) == False:
+        ScorePrevious = Score
+        PreviousListGame = ListGame
+        ListGame = nextMove(ListGame,move)
+        ListGame = addRand(ListGame)
+        Score = ScoreCountL(ListGame)
+        MatrixGame = ListToMatrix(ListGame)
  
+def addRand(board):
+    rand = floor(random() * pow(Size,2)) 
+    while board[rand] != 0:
+        rand = floor(random() * pow(Size,2))
+        
+    board[rand]=2
+    return board
+    
 #cofanie planszy
 def Undo():
     global MatrixGame
-    global MatrixPreviousGame
     global Score
     global ScorePrevious
-    tmp = np.copy(MatrixGame)
+    global ListGame
+    global PreviousListGame
     tmps = Score
-    MatrixGame = np.copy(MatrixPreviousGame)
-    MatrixPreviousGame = np.copy(tmp)
+    tmpp = PreviousListGame.copy()
+    PreviousListGame = ListGame.copy()
+    ListGame = tmpp
+    MatrixGame = ListToMatrix(ListGame)
     Score = ScorePrevious
     ScorePrevious=tmps
+    
     
 #restart gry
 def Restart():
     global MatrixGame
-    global MatrixPreviousGame
     global ScorePrevious
     global Score
-    MatrixGame = np.zeros((Size,Size),dtype=int)
+    global ListGame
+    global PreviousListGame
+    ListGame = np.zeros(Size*Size, dtype=int)
     Score=0
     ScorePrevious=0
-    addRandom()
-    addRandom()
-    MatrixPreviousGame = MatrixGame.copy()
+    ListGame = addRand(ListGame)
+    ListGame = addRand(ListGame)
+    PreviousListGame = ListGame.copy()
+    MatrixGame = ListToMatrix(ListGame)
 
-#obliczanie liczby punktów na danej planszy (macierz)
-def ScoreCountM(board):
-    score = 0
-    for i in range(0,Size):
-        for j in range(0,Size):
-            if board[i][j] != 0 and board[i][j] != 2:
-                c=0
-                b=1
-                while b != board[i][j]:
-                    b=b+b
-                    c+=1
-                score += (c-1)*pow(2,c)    
-    return int(score)
-
+#macierz do listy
 def MatrixToList(Matrix):
     currentValues = []
     for i in range(0,Size):
@@ -192,18 +192,25 @@ def MatrixToList(Matrix):
             currentValues.append(Matrix[floor((i+Size*j)/Size)][(i+Size*j)%Size])         
     return currentValues
     
+#lista do macierzy
+def ListToMatrix(List):
+    currentValues = np.zeros((Size,Size), dtype=int)
+    for i in range(0,Size):
+        for j in range(0,Size):
+            currentValues[i][j] = List[j*Size+i]
+    return currentValues
  
 def MoveAI5():
-    GetMove(BestMoveAI5(MatrixToList(MatrixGame),4))
+    GetMove(BestMoveAI5(ListGame,4))
 #Monte Carlo
 def MoveAI3():  
-    GetMove(BestMoveAI3(MatrixToList(MatrixGame),10,10)) 
+    GetMove(BestMoveAI3(ListGame,10,10)) 
 #funkcja odpowiedzialana za ruch sztucznej inteligencji (zachłanne z patrzeniem w przód)
 def MoveAI2():
-    GetMove(BestMoveAI22(MatrixToList(MatrixGame),3)) 
+    GetMove(BestMoveAI22(ListGame,3)) 
 #zachłanny algorytm, najlepsze wyjście w danej chwili
 def MoveAI1():     
-    GetMove(BestMoveAI(MatrixToList(MatrixGame)))
+    GetMove(BestMoveAI(ListGame))
     
 def GetMove(move):
     if move == UP:
@@ -218,48 +225,7 @@ def GetMove(move):
     elif move == RIGHT:
         pyautogui.keyDown('right')
         pyautogui.keyUp('right')       
-    
-#scalanie płytek
-def Merge():
-    for i in range(0,Size):
-        for j in range(0,Size-1):
-            if MatrixGame[i][j] == MatrixGame[i][j+1] and MatrixGame[i][j] != 0:
-                MatrixGame[i][j] = MatrixGame[i][j]*2
-                MatrixGame[i][j+1] = 0
-                Move()
-    
-#Wykonywanie ruchu
-def Move():
-    for i in range(0,Size):
-        for j in range(0,Size):
-            while MatrixGame[i][j] == 0 and sum(MatrixGame[i][j:]) > 0:
-                for p in range(j,Size-1):
-                    MatrixGame[i][p] = MatrixGame[i][p+1]
-                MatrixGame[i][Size-1] = 0
-    
-#Czy można wykonać ruch
-def Check1():
-    for i in range(0,Size):
-        for j in range(1,Size):
-            if MatrixGame[i][j-1] == 0 and MatrixGame[i][j] > 0:
-                return True
-            elif MatrixGame[i][j-1] == MatrixGame[i][j] and MatrixGame[i][j-1] != 0:
-                return True
-    return False
      
-def Rotate():
-    for i in range(0,floor(Size/2)):
-        for j in range(i,Size-i-1):
-            tmp1 = MatrixGame[i][j]
-            tmp2 = MatrixGame[Size-1-j][i]
-            tmp3 = MatrixGame[Size-1-i][Size-1-j]
-            tmp4 = MatrixGame[j][Size-1-i]
-            
-            MatrixGame[Size-1-j][i]=tmp1
-            MatrixGame[Size-1-i][Size-1-j] = tmp2
-            MatrixGame[j][Size-1-i] = tmp3
-            MatrixGame[i][j] = tmp4
-
 #sprawdzanie czy można dalej grać czy koniec gry
 def Check():
     #sprawdzanie czy są wolne pola
@@ -339,14 +305,6 @@ def Refresh():
                 WindowSurface.blit(label,(i*(Width/Size)+30,j*(Width/Size)+130))
             
             WindowSurface.blit(labelscore,(10,20))
-            
-def addRandom():           
-    rand = floor(random() * pow(Size,2)) 
-    rand2 = random()
-    while MatrixGame[floor(rand/Size)][rand%Size] != 0:
-        rand = floor(random() * pow(Size,2))
-        
-    MatrixGame[floor(rand/Size)][rand%Size] = 2
         
 #odpalenie funkcji main
 main()
