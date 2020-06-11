@@ -103,17 +103,21 @@ def main():
                         
                     #Wywoływanie ruchu sztucznej inteligencji
                     if AI1Flag == True:
-                        MoveAI1()
+                        GetMove(BestMoveAI(ListGame))
                     if AI2Flag == True:
-                        MoveAI2()
+                        GetMove(BestMoveAI22(ListGame,3)) 
                     if AI3Flag == True:
-                        MoveAI3()
+                        GetMove(BestMoveAI3(ListGame,100,10)) 
                     if AI5Flag == True:
-                        MoveAI5()
+                        GetMove(BestMoveAI5(ListGame,4))
                         
                     #restart gry
                     if event.key == pygame.K_r:
-                        Restart()
+                        AI1Flag=False
+                        AI2Flag=False
+                        AI3Flag=False
+                        AI5Flag=False
+                        Restart()      
                         
                     #cofnięcie ruchu
                     if event.key == pygame.K_c:
@@ -199,18 +203,6 @@ def ListToMatrix(List):
         for j in range(0,Size):
             currentValues[i][j] = List[j*Size+i]
     return currentValues
- 
-def MoveAI5():
-    GetMove(BestMoveAI5(ListGame,4))
-#Monte Carlo
-def MoveAI3():  
-    GetMove(BestMoveAI3(ListGame,10,10)) 
-#funkcja odpowiedzialana za ruch sztucznej inteligencji (zachłanne z patrzeniem w przód)
-def MoveAI2():
-    GetMove(BestMoveAI22(ListGame,3)) 
-#zachłanny algorytm, najlepsze wyjście w danej chwili
-def MoveAI1():     
-    GetMove(BestMoveAI(ListGame))
     
 def GetMove(move):
     if move == UP:
