@@ -7,4 +7,4 @@ RIGHT = 104
 #Rozmiar planszy
 Size=4
 Width = Size*100
-Height = Size*125
+Height = Size*(145 - Size*5)

@@ -14,7 +14,6 @@ def ScoreCountL(board):
 #False - jeśli plansza nie ma wolnych miejsc
 #True - jeśli plansza ma wolne miejsca
 def IsEmpty(board):
-    #empty = np.where(board == 0)[0]
     if len(np.where(board == 0)[0]) == 0:
         return False
     return True

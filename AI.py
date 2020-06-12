@@ -17,7 +17,6 @@ def ScoreCount(board):
             tmp+=1
         m[i]=g
     #[6,5,4,3,
-    #[6,5,4,3,
     #5,4,3,2,
     #4,3,2,1,
     #3,2,1,0]
@@ -58,59 +57,48 @@ def BestMoveAI5(board,depth):
         
 #Monte Carlo
 def BestMoveAI3(board,N,no_moves):
-
-    #N=10 #100
-    #moves=10 #150
     tup = []
     moves = [UP,LEFT,DOWN,RIGHT]
 
     for j in moves:
         summ=0
         for i in range(0,N):
-            b1 = nextMove(board,j)
-            
+            b1 = nextMove(board,j)          
             if IsSame(board,b1) == False:
                 for k in range(0,no_moves):
-                    rand2 = floor(random() * Size*Size)
-                
                     if IsEmpty(b1) == False:
                         break
+                    rand2 = floor(random() * Size*Size)
                     while b1[rand2]!=0:
                         rand2 = floor(random() * Size*Size)
                     b1[rand2]=2
                 
-                    b1 = nextMoverand(b1)
+                    b1 = nextMove(b1,moves[floor(random() * 4)])
             summ+= ScoreCountL(b1)
         tup.append(summ/N)
             
     return moves[tup.index(max(tup))]
-            
-#Zwracanie planszy dla randomowego ruchu
-def nextMoverand(board):
-    moves = [UP,LEFT,DOWN,RIGHT]
-    return nextMove(board,moves[floor(random() * 4)])
  
 def BestMoveAI22(board,depth):
     return BestMoveAI2(board,depth,depth)
  
 #Ocenianie najlepszego ruchu w danym momencie dla zachłannego z patrzeniem w przód
 def BestMoveAI2(board,depth,prevdepth):
+    if depth==0:
+        return ScoreCountL(board)
+    
+    tup = []
+    moves = [UP,LEFT,DOWN,RIGHT]
     if depth == prevdepth:
-        moves = [UP,LEFT,DOWN,RIGHT]
-        tup = []
-        
         for i in moves:
             b=nextMove(board,i)
             if IsSame(board,b) == False:
                 tup.append(BestMoveAI2(b,depth-1,prevdepth))
             else: 
-                tup.append(0)
-    
+                tup.append(0)   
         return moves[tup.index(max(tup))]
             
     elif depth > 0:
-        tup = []
-        moves = [UP,LEFT,DOWN,RIGHT]
         b=board.copy()
         empty = np.where(b == 0)[0]
         for i in empty:
@@ -120,13 +108,9 @@ def BestMoveAI2(board,depth,prevdepth):
                 if IsSame(board,b1) == False:
                     tup.append(BestMoveAI2(b1,depth-1,prevdepth))
             b[i]=0
-  
         if len(tup) == 0:
             return 0
         return mean(tup)
-            
-    elif depth == 0:
-        return ScoreCountL(board)
              
 #Ocenianie najlepszego ruchu w danym momencie dla zachłannego bez patrzenia w przód
 def BestMoveAI(board):
