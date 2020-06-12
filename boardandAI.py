@@ -14,9 +14,10 @@ def ScoreCountL(board):
 #False - jeśli plansza nie ma wolnych miejsc
 #True - jeśli plansza ma wolne miejsca
 def IsEmpty(board):
-    if len(np.where(board == 0)[0]) == 0:
-        return False
-    return True
+    for i in range(0,len(board)):
+        if board[i] == 0:
+            return True
+    return False
     
 #True - dwie plansze są takie same
 #False - plansze różnią się   

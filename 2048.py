@@ -5,21 +5,15 @@ from constants import *
 from math import *
 from AI import *
 import datetime
+import time 
 
-#macierz planszy
-MatrixGame = np.zeros((Size,Size), dtype=int)
+#lista punktow
 ListGame = np.zeros(Size*Size, dtype=int)
 PreviousListGame = []
 #licznik punktów
 Score = 0
 #Wynik krok wcześniej
 ScorePrevious = 0
-#Flagi dla AI
-AI1Flag = False
-AI2Flag = False
-AI3Flag = False
-AI5Flag = False
-
 
 #inicjalizacja pygame
 pygame.init()
@@ -30,19 +24,10 @@ pygame.display.set_caption("2048")
 
 
 def main():
-    global MatrixGame
-    global PreviousListGame
-    global Score
-    global ScorePrevious
-    global AI1Flag
-    global AI2Flag
-    global AI3Flag
-    global AI5Flag
-    global ListGame   
+    global ListGame,PreviousListGame,Score,ScorePrevious
     ListGame = addRand(ListGame)
     ListGame = addRand(ListGame)
     PreviousListGame = ListGame.copy()
-    MatrixGame = ListToMatrix(ListGame)
     Refresh()
     
     #obsługa zdarzeń i działanie gry
@@ -63,91 +48,79 @@ def main():
                         Move(DOWN)
                     if event.key == pygame.K_RIGHT:
                         Move(RIGHT)
-                    #sztuczna inteligencja włącz/wyłącz
+                        
                     if event.key == pygame.K_1:
-                        #zachłany bez patrzenia w przód
-                        if AI1Flag == True:
-                            AI1Flag=False
-                        else:
-                            AI1Flag=True
-                            AI2Flag=False
-                            AI3Flag=False
-                            AI5Flag=False
-                    if event.key == pygame.K_2:
-                        #zachałanny z patrzeniem w przód
-                        if AI2Flag == True:
-                            AI2Flag=False
-                        else:
-                            AI2Flag=True
-                            AI1Flag=False
-                            AI3Flag=False
-                            AI5Flag=False
-                    if event.key == pygame.K_3:
-                        #patrzenie w przód monte carlo
-                        if AI3Flag == True:
-                            AI3Flag=False
-                        else:
-                            AI3Flag=True
-                            AI1Flag=False
-                            AI2Flag=False
-                            AI5Flag=False
-                    if event.key == pygame.K_5:
-                        #z agentemi i inną oceną
-                        if AI5Flag == True:
-                            AI5Flag=False
-                        else:
-                            AI5Flag=True
-                            AI1Flag=False
-                            AI2Flag=False
-                            AI3Flag=False
-                        
-                    #Wywoływanie ruchu sztucznej inteligencji
-                    if AI1Flag == True:
-                        GetMove(BestMoveAI(ListGame))
-                    if AI2Flag == True:
-                        GetMove(BestMoveAI22(ListGame,3)) 
-                    if AI3Flag == True:
-                        GetMove(BestMoveAI3(ListGame,100,10)) 
-                    if AI5Flag == True:
-                        GetMove(BestMoveAI5(ListGame,4))
-                        
-                    #restart gry
-                    if event.key == pygame.K_r:
-                        AI1Flag=False
-                        AI2Flag=False
-                        AI3Flag=False
-                        AI5Flag=False
-                        Restart()      
-                        
+                        check = True
+                        while(check == True):
+                            Move(BestMoveAI(ListGame)) 
+                            Refresh()        
+                            pygame.display.update() 
+                            for event in pygame.event.get():
+                                if event.type == KEYDOWN:
+                                    if event.key == pygame.K_1:
+                                        check = False
+                            if (Check() == False or check == False):
+                                check=False
+                    elif event.key == pygame.K_2:
+                        check = True
+                        while(check == True):
+                            Move(BestMoveAI22(ListGame,3)) 
+                            Refresh()        
+                            pygame.display.update() 
+                            for event in pygame.event.get():
+                                if event.type == KEYDOWN:
+                                    if event.key == pygame.K_2:
+                                        check = False
+                            if (Check() == False or check == False):
+                                check=False
+                    elif event.key == pygame.K_3:
+                        check = True
+                        while(check == True):
+                            Move(BestMoveAI3(ListGame,100,10)) 
+                            Refresh()        
+                            pygame.display.update() 
+                            for event in pygame.event.get():
+                                if event.type == KEYDOWN:
+                                    if event.key == pygame.K_3:
+                                        check = False
+                            if (Check() == False or check == False):
+                                check=False
+                    elif event.key == pygame.K_5:
+                        check = True
+                        while(check == True):
+                            Move(BestMoveAI5(ListGame,4)) 
+                            Refresh()        
+                            pygame.display.update() 
+                            for event in pygame.event.get():
+                                if event.type == KEYDOWN:
+                                    if event.key == pygame.K_5:
+                                        check = False
+                            if (Check() == False or check == False):
+                                check=False
+                   
                     #cofnięcie ruchu
-                    if event.key == pygame.K_c:
+                    elif event.key == pygame.K_c:
                         Undo()
-                    Refresh()
+                    #restart gry
+                    elif event.key == pygame.K_r:
+                        Restart() 
             #przegrana gra        
             else:
-                AI1Flag=False
-                AI2Flag=False
-                AI3Flag=False
-                AI5Flag=False
                 if event.type == KEYDOWN:
                     if event.key == pygame.K_r:
                         Restart()
-                
+                  
+        Refresh()        
         pygame.display.update()            
 
 def Move(move):
-    global MatrixGame
-    global ScorePrevious
-    global Score
-    global ListGame
-    global PreviousListGame
+    global ListGame,PreviousListGame,Score,ScorePrevious
     if IsSame(ListGame,nextMove(ListGame,move)) == False:
         ScorePrevious = Score
         PreviousListGame = ListGame
         ListGame = nextMove(ListGame,move)
         ListGame = addRand(ListGame)
         Score = ScoreCountL(ListGame)
-        MatrixGame = ListToMatrix(ListGame)
  
 def addRand(board):
     rand = floor(random() * pow(Size,2)) 
@@ -159,79 +132,41 @@ def addRand(board):
     
 #cofanie planszy
 def Undo():
-    global MatrixGame
-    global Score
-    global ScorePrevious
-    global ListGame
-    global PreviousListGame
+    global ListGame,PreviousListGame,Score,ScorePrevious
     tmps = Score
     tmpp = PreviousListGame.copy()
     PreviousListGame = ListGame.copy()
     ListGame = tmpp
-    MatrixGame = ListToMatrix(ListGame)
     Score = ScorePrevious
     ScorePrevious=tmps
     
     
 #restart gry
 def Restart():
-    global MatrixGame
-    global ScorePrevious
-    global Score
-    global ListGame
-    global PreviousListGame
+    global ListGame,PreviousListGame,Score,ScorePrevious
     ListGame = np.zeros(Size*Size, dtype=int)
     Score=0
     ScorePrevious=0
     ListGame = addRand(ListGame)
     ListGame = addRand(ListGame)
-    PreviousListGame = ListGame.copy()
-    MatrixGame = ListToMatrix(ListGame)
-
-#macierz do listy
-def MatrixToList(Matrix):
-    currentValues = []
-    for i in range(0,Size):
-        for j in range(0,Size):
-            currentValues.append(Matrix[floor((i+Size*j)/Size)][(i+Size*j)%Size])         
-    return currentValues
-    
-#lista do macierzy
-def ListToMatrix(List):
-    currentValues = np.zeros((Size,Size), dtype=int)
-    for i in range(0,Size):
-        for j in range(0,Size):
-            currentValues[i][j] = List[j*Size+i]
-    return currentValues
-    
-def GetMove(move):
-    if move == UP:
-        pyautogui.keyDown('up')
-        pyautogui.keyUp('up')
-    elif move == DOWN:
-        pyautogui.keyDown('down')
-        pyautogui.keyUp('down')
-    elif move == LEFT:
-        pyautogui.keyDown('left')
-        pyautogui.keyUp('left')
-    elif move == RIGHT:
-        pyautogui.keyDown('right')
-        pyautogui.keyUp('right')       
+    PreviousListGame = ListGame.copy()   
      
 #sprawdzanie czy można dalej grać czy koniec gry
 def Check():
     #sprawdzanie czy są wolne pola
-    for i in range(0,Size):
-        for j in range(0,Size):
-            if MatrixGame[i][j] == 0:
-                return True
-                
+    for i in range(0,Size*Size):
+        if ListGame[i] == 0:
+            return True
+    
+    #DO ANALIZY
+    
+    
     #sprawdzanie czy po wykonaniu jakiegoś ruchu będą wolne pola
     for i in range(0,Size):
         for j in range(0,Size-1):
-            if MatrixGame[i][j] == MatrixGame[i][j+1]:
+            if ListGame[Size*j+i] == ListGame[Size*j+i+1]:
                 return True
-            elif MatrixGame[j][i] == MatrixGame[j+1][i]:
+            elif ListGame[Size*j+i] == ListGame[Size*(j+1)+i]:
                 return True
     
     return False
@@ -242,61 +177,52 @@ def Refresh():
     for i in range(0,Size):
         for j in range(0,Size):
             myfont = pygame.font.SysFont("monospace",40)
-            #kolor w zależności od tego jaką wartość ma numer
-            #zrób z tego funkcję
-            if MatrixGame[i][j] == 0:
-                pygame.draw.rect(WindowSurface,(205,193,179),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(118,108,97))
-            elif MatrixGame[i][j] == 2:
+            if ListGame[Size*j+i] == 0:
+                pygame.draw.rect(WindowSurface,(205,193,179),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))                
+            elif ListGame[Size*j+i] == 2:
                 pygame.draw.rect(WindowSurface,(245,228,218),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(118,108,97))
-            elif MatrixGame[i][j] == 4:
+            elif ListGame[Size*j+i] == 4:
                 pygame.draw.rect(WindowSurface,(245,224,200),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(118,108,97))
-            elif MatrixGame[i][j] == 8:
+            elif ListGame[Size*j+i] == 8:
                 pygame.draw.rect(WindowSurface,(245,117,121),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 16:
+            elif ListGame[Size*j+i] == 16:
                 pygame.draw.rect(WindowSurface,(245,149,99),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 32:
+            elif ListGame[Size*j+i] == 32:
                 pygame.draw.rect(WindowSurface,(245,124,95),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 64:
+            elif ListGame[Size*j+i] == 64:
                 pygame.draw.rect(WindowSurface,(245,95,55),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 128:
+            elif ListGame[Size*j+i] == 128:
                 pygame.draw.rect(WindowSurface,(245,207,144),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 256:
+            elif ListGame[Size*j+i] == 256:
                 pygame.draw.rect(WindowSurface,(245,204,97),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 512:
+            elif ListGame[Size*j+i] == 512:
                 pygame.draw.rect(WindowSurface,(245,197,91),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 1024:
+            elif ListGame[Size*j+i] == 1024:
                 pygame.draw.rect(WindowSurface,(245,207,121),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 2048:
+            elif ListGame[Size*j+i] == 2048:
                 pygame.draw.rect(WindowSurface,(245,194,46),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(247,245,241))
-            elif MatrixGame[i][j] == 4096: 
+            elif ListGame[Size*j+i] == 4096: 
                 pygame.draw.rect(WindowSurface,(253,61,59),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(255,255,255))
             else: 
                 pygame.draw.rect(WindowSurface,(253,25,30),(i*(Width/Size),j*(Width/Size)+100,Width/Size,Width/Size))
-                label = myfont.render(str(MatrixGame[i][j]),1,(255,255,255))
-            
+                
+                
+            if ListGame[Size*j+i] < 8:
+                label = myfont.render(str(ListGame[Size*j+i]),1,(118,108,97))
+            elif ListGame[Size*j+i] < 4096:
+                label = myfont.render(str(ListGame[Size*j+i]),1,(247,245,241))
+            else:
+                label = myfont.render(str(ListGame[Size*j+i]),1,(255,255,255))
+                
             labelscore = myfont.render("SCORE: "+str(Score),1,(255,255,255))
             
-            if MatrixGame[i][j] > 100 and MatrixGame[i][j] <= 1000:
+            if ListGame[Size*j+i] > 100 and ListGame[Size*j+i] <= 1000:
                 WindowSurface.blit(label,(i*(Width/Size)+15,j*(Width/Size)+130))
-            elif MatrixGame[i][j] > 1000:
+            elif ListGame[Size*j+i] > 1000:
                 WindowSurface.blit(label,(i*(Width/Size)+5,j*(Width/Size)+130))
             else:
                 WindowSurface.blit(label,(i*(Width/Size)+30,j*(Width/Size)+130))
             
             WindowSurface.blit(labelscore,(10,20))
-        
-#odpalenie funkcji main
+    
 main()
