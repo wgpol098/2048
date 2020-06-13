@@ -3,7 +3,6 @@ from boardandAI import *
 import operator
 from statistics import mean
 
-#spróbowanie innej oceny sytuacji
 def ScoreCount(board):
     g = Size+(Size-1)
     m=np.zeros(Size*Size, dtype=int)
@@ -55,7 +54,6 @@ def BestMoveAI5(board,depth):
             
     return moves[tup.index(max(tup))]
         
-#Monte Carlo
 def BestMoveAI3(board,N,no_moves):
     tup = []
     moves = [UP,LEFT,DOWN,RIGHT]
@@ -82,7 +80,6 @@ def BestMoveAI3(board,N,no_moves):
 def BestMoveAI22(board,depth):
     return BestMoveAI2(board,depth,depth)
  
-#Ocenianie najlepszego ruchu w danym momencie dla zachłannego z patrzeniem w przód
 def BestMoveAI2(board,depth,prevdepth):
     if depth==0:
         return ScoreCountL(board)
@@ -96,6 +93,8 @@ def BestMoveAI2(board,depth,prevdepth):
                 tup.append(BestMoveAI2(b,depth-1,prevdepth))
             else: 
                 tup.append(0)   
+        if max(tup) == 0:
+            return moves[floor(random() * 4)]
         return moves[tup.index(max(tup))]
             
     elif depth > 0:
@@ -112,7 +111,6 @@ def BestMoveAI2(board,depth,prevdepth):
             return 0
         return mean(tup)
              
-#Ocenianie najlepszego ruchu w danym momencie dla zachłannego bez patrzenia w przód
 def BestMoveAI(board):
     tup = []
     moves = [UP,LEFT,DOWN,RIGHT]

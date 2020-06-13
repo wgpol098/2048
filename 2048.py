@@ -1,27 +1,18 @@
 import pygame,sys,time
 import pyautogui
 from pygame.locals import *
-from constants import *
-from math import *
 from AI import *
-import datetime
-import time 
 
 #lista punktow
 ListGame = np.zeros(Size*Size, dtype=int)
 PreviousListGame = []
 #licznik punktów
 Score = 0
-#Wynik krok wcześniej
 ScorePrevious = 0
 
-#inicjalizacja pygame
 pygame.init()
-
-#WindowSurface
 WindowSurface = pygame.display.set_mode((Width,Height),0,32)
 pygame.display.set_caption("2048")
-
 
 def main():
     global ListGame,PreviousListGame,Score,ScorePrevious
@@ -30,7 +21,6 @@ def main():
     PreviousListGame = ListGame.copy()
     Refresh()
     
-    #obsługa zdarzeń i działanie gry
     while True:
         for event in pygame.event.get():
             #wyjscie z gry
@@ -153,22 +143,18 @@ def Restart():
      
 #sprawdzanie czy można dalej grać czy koniec gry
 def Check():
-    #sprawdzanie czy są wolne pola
     for i in range(0,Size*Size):
         if ListGame[i] == 0:
             return True
     
-    #DO ANALIZY
-    
-    
-    #sprawdzanie czy po wykonaniu jakiegoś ruchu będą wolne pola
     for i in range(0,Size):
-        for j in range(0,Size-1):
-            if ListGame[Size*j+i] == ListGame[Size*j+i+1]:
-                return True
-            elif ListGame[Size*j+i] == ListGame[Size*(j+1)+i]:
-                return True
-    
+        for j in range(0,Size):
+            if Size-1!=i:
+                if ListGame[Size*j+i] == ListGame[Size*j+i+1]:
+                    return True
+            if Size-1!=j:
+                if ListGame[Size*j+i] == ListGame[Size*(j+1)+i]:
+                    return True  
     return False
     
 def Refresh():

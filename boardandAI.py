@@ -2,7 +2,6 @@ import numpy as np
 from math import *
 from settings import *
 
-#obliczanie liczby punktów dla danej planszy (lista)
 def ScoreCountL(board):
     score = 0
     for i in range(0,Size*Size):
@@ -31,7 +30,6 @@ def IsSame(board1, board2):
         return True
     return False
     
-#Przesuwanie elementów
 def swipeRow(row):
     prev = -1
     i = 0
@@ -51,7 +49,6 @@ def swipeRow(row):
                 i += 1
     return temp
     
-#Zwracanie planszy dla następnego ruchu
 def nextMove(board, move):
     tmp = np.zeros(Size*Size, dtype=int)
     if move == UP:
