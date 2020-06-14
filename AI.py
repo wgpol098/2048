@@ -51,7 +51,9 @@ def BestMoveAI5(board,depth):
             tup.append(BM(b1,depth,10001))
         else:
             tup.append(0)
-            
+    
+    if max(tup) == 0:
+        return moves[floor(random() * 4)]    
     return moves[tup.index(max(tup))]
         
 def BestMoveAI3(board,N,no_moves):
